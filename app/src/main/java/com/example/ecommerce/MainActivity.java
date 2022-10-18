@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ecommerce.models.Order;
 import com.example.ecommerce.models.Product;
 import com.example.ecommerce.models.Store;
 import com.example.ecommerce.services.APIClient;
@@ -17,9 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
-//import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,12 +37,30 @@ public class MainActivity extends AppCompatActivity {
 
         responseText = (TextView) findViewById(R.id.textView);
 
-//        APIInterface apiInterface = APIClient.getClient().create(APIInterface.class);
-
-//        getStores();
-//        getProducts();
         callEndpoints();
 
+        Order order = new Order();
+
+    }
+
+    private void callEndpoints() {
+        APIInterface apiInterface = APIClient.getClient().create(APIInterface.class);
+
+        Observable<List<Store>> storeObservable = apiInterface.doGetStoreList();
+        Observable<List<Product>> productObservable = apiInterface.doGetProductList();
+
+        Observable.merge(storeObservable, productObservable)
+            .subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(this::handleResults, this::handleError,this::handleCompletion);
+
+    }
+
+    private void handleCompletion() {
+        responseText.setText(myStores.size()+": :"+myProducts.size());
+        for (Map.Entry<Integer,Product> entry : myProducts.entrySet()){
+            Toast.makeText(this, ""+entry.getValue().toString(), Toast.LENGTH_SHORT).show();
+        }
         GridLayout gridLayout = (GridLayout) findViewById(R.id.GridLayout);
         for (Map.Entry<Integer,Product> entry : myProducts.entrySet()){
             TextView t1 = new TextView(this);
@@ -52,28 +71,9 @@ public class MainActivity extends AppCompatActivity {
             gridLayout.addView(t1);
             gridLayout.addView(t2);
         }
-
     }
-
-    private void callEndpoints() {
-        APIInterface apiInterface = APIClient.getClient().create(APIInterface.class);
-
-        Observable<List<Store>> storeObservable = apiInterface.doGetStoreList();
-
-        Observable<List<Product>> productObservable = apiInterface.doGetProductList();
-
-        Observable.merge(storeObservable, productObservable)
-                .subscribeOn(Schedulers.computation())
-//                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::handleResults, this::handleError);
-
-
-
-    }
-
     private void handleResults(List<? extends Object> objects) {
         if (objects != null && objects.size() != 0) {
-//            recyclerViewAdapter.setData(productList);
             for(int x=  0;x<objects.size();x++){
                 if(objects.get(x) instanceof Product){
                     myProducts.put(((Product)(objects.get(x))).getId(),(Product)(objects.get(x)));
@@ -81,71 +81,12 @@ public class MainActivity extends AppCompatActivity {
                     myStores.put(((Store)objects.get(x)).getId(),(Store) objects.get(x));
                 }
             }
-        } else {
-            Toast.makeText(this, "NO RESULTS FOUND",
-                    Toast.LENGTH_LONG).show();
+        }else {
+            Toast.makeText(this, "NO RESULTS FOUND", Toast.LENGTH_LONG).show();
         }
     }
 
-
-//    private void handleResults(List<Product> productList) {
-//        if (productList != null && productList.size() != 0) {
-////            recyclerViewAdapter.setData(productList);
-//        } else {
-//            Toast.makeText(this, "NO RESULTS FOUND",
-//                    Toast.LENGTH_LONG).show();
-//        }
-//    }
-
     private void handleError(Throwable t) {
-
-        Toast.makeText(this, "ERROR IN FETCHING API RESPONSE. Try again",
-                Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "ERROR IN FETCHING API RESPONSE. Try again", Toast.LENGTH_LONG).show();
     }
-
-//    private void getStores(){
-//        APIInterface apiInterface = APIClient.getClient().create(APIInterface.class);
-//
-//        Call<List<Store>> storesCall = apiInterface.doGetStoreList();
-//        storesCall.enqueue(new Callback<List<Store>>() {
-//            @Override
-//            public void onResponse(Call<List<Store>> call, Response<List<Store>> response) {
-//                List<Store> stores = response.body();
-//
-//                for(Store s: stores){
-//                    myStores.put(s.getId(),s);
-//                }
-//
-//                Toast.makeText(MainActivity.this, "Store data fetched.", Toast.LENGTH_SHORT).show();
-//            }
-//            @Override
-//            public void onFailure(Call<List<Store>> call, Throwable t) {
-//                responseText.setText("FAILED");
-//                call.cancel();
-//            }
-//        });
-//    }
-//
-//    private void getProducts(){
-//        APIInterface apiInterface = APIClient.getClient().create(APIInterface.class);
-//
-//        Call<List<Product>> productsCall = apiInterface.doGetProductList();
-//        productsCall.enqueue(new Callback<List<Product>>() {
-//            @Override
-//            public void onResponse(Call<List<Product>> call, Response<List<Product>> response) {
-//                List<Product> products = response.body();
-//
-//                for(Product p: products){
-//                    myProducts.put(p.getId(),p);
-//                }
-//
-//                Toast.makeText(MainActivity.this, "Product data fetched.", Toast.LENGTH_SHORT).show();
-//            }
-//            @Override
-//            public void onFailure(Call<List<Product>> call, Throwable t) {
-//                responseText.setText("FAILED");
-//                call.cancel();
-//            }
-//        });
-//    }
 }
