@@ -29,7 +29,7 @@ public class Order implements Parcelable {
         }
     };
 
-    void addProduct(Product p){
+    public void addProduct(Product p){
         if(products.containsKey(p)){
             int value = products.get(p);
             products.put(p,value+1);
@@ -38,7 +38,7 @@ public class Order implements Parcelable {
         }
     }
 
-    boolean removeProduct(Product p){
+    public boolean removeProduct(Product p){
         if(products.containsKey(p)){
             products.remove(p);
             return true;
@@ -47,7 +47,7 @@ public class Order implements Parcelable {
         }
     }
 
-    boolean decreaseProduct(Product p, int quantity){
+    public boolean decreaseProduct(Product p, int quantity){
         if(products.containsKey(p)){
             int value = products.get(p);
             if(value==1){
@@ -62,7 +62,7 @@ public class Order implements Parcelable {
         }
     }
 
-    double getTotalPrice(){
+    public double getTotalPrice(){
         double sum = 0;
 
         for (Map.Entry<Product, Integer> entry : products.entrySet()) {
