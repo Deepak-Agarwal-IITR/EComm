@@ -2,7 +2,9 @@ package com.example.ecommerce.models;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Store {
+import java.io.Serializable;
+
+public class Store implements Serializable {
     @SerializedName("name")
     private String name;
     @SerializedName("address")

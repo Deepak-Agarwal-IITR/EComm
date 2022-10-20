@@ -1,12 +1,10 @@
 package com.example.ecommerce.models;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Order implements Parcelable {
+public class Order implements Serializable {
 
     private Map<Product,Integer> products;
 
@@ -14,20 +12,9 @@ public class Order implements Parcelable {
         products = new HashMap<>();
     }
 
-    protected Order(Parcel in) {
+    public Map<Product, Integer> getProducts() {
+        return products;
     }
-
-    public static final Creator<Order> CREATOR = new Creator<Order>() {
-        @Override
-        public Order createFromParcel(Parcel in) {
-            return new Order(in);
-        }
-
-        @Override
-        public Order[] newArray(int size) {
-            return new Order[size];
-        }
-    };
 
     public void addProduct(Product p){
         if(products.containsKey(p)){
@@ -75,11 +62,16 @@ public class Order implements Parcelable {
     }
 
     @Override
-    public int describeContents() {
-        return 0;
+    public String toString() {
+        String s = "Order: \n";
+
+        for (Map.Entry<Product,Integer> entry : products.entrySet()) {
+            s+= entry.getKey().toString()+" -- "+entry.getValue()+"\n";
+        }
+        return s;
     }
 
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
+    public int getQuantity(Product p) {
+        return products.getOrDefault(p, 0);
     }
 }
