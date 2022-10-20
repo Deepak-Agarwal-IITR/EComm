@@ -44,32 +44,39 @@ public class CartPage extends AppCompatActivity {
 
         for (Map.Entry<Product, Integer> entry : order.getProducts().entrySet()) {
             LinearLayout horizontalLinearLayout = getLinearLayout(this, LinearLayout.HORIZONTAL,
-                    getLayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 30, 5, 30, 5));
+                    getLayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT,30,5,30,5)) ;
 
             LinearLayout textVerticalLinearLayout = getLinearLayout(this, LinearLayout.VERTICAL,
-                    getLayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.15f, 15, 5, 15, 5));
+                    getLayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT,0.35f,15,5,15,5));
 
-            LinearLayout plusVerticalLinearLayout = getLinearLayout(this, LinearLayout.VERTICAL,
-                    getLayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 0.85f, 15, 5, 15, 5));
-            plusVerticalLinearLayout.setGravity(Gravity.CENTER);
+            LinearLayout plusHorizontalLinearLayout = getLinearLayout(this,LinearLayout.HORIZONTAL,
+                    getLayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT,0.65f,15,5,15,5));
 
-            TextView plus = getTextView(this, "+", LinearLayout.LayoutParams.MATCH_PARENT, 30, Gravity.CENTER);
+            LinearLayout.LayoutParams layoutParams = getLayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.MATCH_PARENT,(1.0f/3f),5,0,5,0);
+
+            TextView minus = getTextView(this,"-",30,Gravity.CENTER);
+            minus.setLayoutParams(layoutParams);
+            minus.setTag(entry.getKey());
+            minus.setOnClickListener(this::removeProductInOrder);
+
+            TextView quantity = getTextView(this,""+order.getQuantity(entry.getKey()),30,Gravity.CENTER);
+            quantity.setTag("pq"+entry.getKey().getId());
+            quantity.setLayoutParams(layoutParams);
+
+            TextView plus = getTextView(this,"+",30,Gravity.CENTER);
             plus.setTag(entry.getKey());
-            plus.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    addProductInOrder(view);
-                }
-            });
+            plus.setLayoutParams(layoutParams);
+            plus.setOnClickListener(this::addProductInOrder);
 
-            textVerticalLinearLayout.addView(getTextView(this, entry.getKey().getName() + ": " + entry.getKey().getPrice(), LinearLayout.LayoutParams.MATCH_PARENT, 20, Gravity.CENTER_HORIZONTAL));
-            textVerticalLinearLayout.addView(getTextView(this, myStores.get(entry.getKey().getStoreId()).getName(), LinearLayout.LayoutParams.MATCH_PARENT, 20, Gravity.CENTER_HORIZONTAL));
+            textVerticalLinearLayout.addView(getTextView(this,entry.getKey().getName()+": "+entry.getKey().getPrice(),LinearLayout.LayoutParams.MATCH_PARENT,20,Gravity.CENTER_HORIZONTAL));
+            textVerticalLinearLayout.addView(getTextView(this,myStores.get(entry.getKey().getStoreId()).getName(),LinearLayout.LayoutParams.MATCH_PARENT,20,Gravity.CENTER_HORIZONTAL));
 
-            plusVerticalLinearLayout.addView(plus);
+            plusHorizontalLinearLayout.addView(minus);
+            plusHorizontalLinearLayout.addView(quantity);
+            plusHorizontalLinearLayout.addView(plus);
 
             horizontalLinearLayout.addView(textVerticalLinearLayout);
-            horizontalLinearLayout.addView(plusVerticalLinearLayout);
-
+            horizontalLinearLayout.addView(plusHorizontalLinearLayout);
             productsLinearLayout.addView(horizontalLinearLayout);
         }
     }
@@ -85,6 +92,21 @@ public class CartPage extends AppCompatActivity {
     public void addProductInOrder(View view){
         Product product = (Product) view.getTag();
         order.addProduct(product);
+
+        LinearLayout linearLayout = (LinearLayout) view.getParent();
+        TextView quantityTextView = (TextView) linearLayout.findViewWithTag("pq" + product.getId());
+        quantityTextView.setText(""+order.getQuantity(product));
         priceTextView.setText(df.format(order.getTotalPrice()));
+    }
+
+    public void removeProductInOrder(View view) {
+        Product product = (Product) view.getTag();
+
+        if(order.decreaseProduct(product,1)) {
+            LinearLayout linearLayout = (LinearLayout) view.getParent();
+            TextView quantityTextView = (TextView) linearLayout.findViewWithTag("pq"+product.getId());
+            quantityTextView.setText(""+order.getQuantity(product));
+            priceTextView.setText(df.format(order.getTotalPrice()));
+        }
     }
 }

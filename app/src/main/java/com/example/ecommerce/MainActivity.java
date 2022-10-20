@@ -22,8 +22,6 @@ import com.example.ecommerce.models.Store;
 import com.example.ecommerce.services.APIClient;
 import com.example.ecommerce.services.APIInterface;
 
-import org.w3c.dom.Text;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
