@@ -7,12 +7,12 @@
     android:layout_height="match_parent"
     tools:context=".CartPage">
 
-    <TextView
-        android:id="@+id/errorTextView"
-        android:layout_width="0dp"
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -20,20 +20,20 @@
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:gravity="center"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/errorTextView">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:id="@+id/productsLinearLayout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
         </LinearLayout>
 
@@ -58,9 +58,24 @@
                 android:layout_weight="0"
                 android:onClick="backToProducts"
                 android:text="All Products"
-                android:textSize="30dp" />
+                android:textSize="24dp" />
 
         </LinearLayout>
+
+        <EditText
+            android:id="@+id/addressEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:hint="Address"
+            android:inputType="textPersonName" />
+
+        <Button
+            android:id="@+id/placeOrder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="placeOrder"
+            android:text="Place Order" />
 
     </LinearLayout>
 

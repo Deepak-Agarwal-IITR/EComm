@@ -11,30 +11,43 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ecommerce.models.Order;
 import com.example.ecommerce.models.Product;
 import com.example.ecommerce.models.Store;
+import com.example.ecommerce.services.APIClient;
+import com.example.ecommerce.services.APIInterface;
 
 import java.io.Serializable;
 import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CartPage extends AppCompatActivity {
 
     Order order;
     LinearLayout productsLinearLayout;
     Map<Integer, Store> myStores;
-    TextView priceTextView, errorTextView;
+    TextView priceTextView;
+    EditText addressEditText;
+    ProgressBar spinner;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart_page);
         productsLinearLayout = (LinearLayout) findViewById(R.id.productsLinearLayout);
         priceTextView = (TextView) findViewById(R.id.priceTextView);
-        errorTextView = (TextView) findViewById(R.id.errorTextView);
+        addressEditText = (EditText) findViewById(R.id.addressEditText);
+        spinner = (ProgressBar)findViewById(R.id.progressBar);
+        spinner.setVisibility(View.GONE);
 
         Intent intent = getIntent();
         order = (Order) intent.getSerializableExtra("orderDetails");
@@ -108,5 +121,40 @@ public class CartPage extends AppCompatActivity {
             quantityTextView.setText(""+order.getQuantity(product));
             priceTextView.setText(df.format(order.getTotalPrice()));
         }
+    }
+
+    public void placeOrder(View view){
+        if (addressEditText.getText().toString().isEmpty()) {
+            Toast.makeText(this, "Please enter address.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        spinner.setVisibility(View.VISIBLE);
+        placeOrder(addressEditText.getText().toString());
+    }
+
+    private void placeOrder(String address) {
+
+        APIInterface apiInterface = APIClient.getClient().create(APIInterface.class);
+        order.setAddress(address);
+
+        Call<Order> call = apiInterface.placeOrder(order.getMapOfProducts(), address);
+        call.enqueue(new Callback<Order>() {
+            @Override
+            public void onResponse(Call<Order> call, Response<Order> response) {
+
+                Toast.makeText(CartPage.this, "Order placed successfully.", Toast.LENGTH_SHORT).show();
+                spinner.setVisibility(View.GONE);
+
+                Intent intent = new Intent(CartPage.this, SuccessPage.class);
+                startActivity(intent);
+                finish();
+            }
+
+            @Override
+            public void onFailure(Call<Order> call, Throwable t) {
+                Toast.makeText(CartPage.this, "Something went wrong!!", Toast.LENGTH_SHORT).show();
+                spinner.setVisibility(View.GONE);
+            }
+        });
     }
 }

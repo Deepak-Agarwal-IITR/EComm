@@ -3,6 +3,7 @@ package com.example.ecommerce.models;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Product implements Serializable {
     @SerializedName("id")
@@ -61,5 +62,18 @@ public class Product implements Serializable {
                 ", storeId=" + storeId +
                 ", price=" + price +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return id == product.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

@@ -1,12 +1,17 @@
 package com.example.ecommerce.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Order implements Serializable {
 
-    private Map<Product,Integer> products;
+    @SerializedName("products")
+    public Map<Product,Integer> products;
+    @SerializedName("address")
+    private String address;
 
     public Order() {
         products = new HashMap<>();
@@ -14,6 +19,18 @@ public class Order implements Serializable {
 
     public Map<Product, Integer> getProducts() {
         return products;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setProducts(Map<Product, Integer> products) {
+        this.products = products;
     }
 
     public void addProduct(Product p){
@@ -64,11 +81,21 @@ public class Order implements Serializable {
     @Override
     public String toString() {
         String s = "Order: \n";
+        s+=("Address: "+(address!=null?address:"NULL"));
+        s+="\n";
 
         for (Map.Entry<Product,Integer> entry : products.entrySet()) {
             s+= entry.getKey().toString()+" -- "+entry.getValue()+"\n";
         }
         return s;
+    }
+
+    public Map<String,String> getMapOfProducts(){
+        Map<String,String> myMap = new HashMap<>();
+        for( Map.Entry<Product,Integer> entry: products.entrySet()){
+            myMap.put(entry.getKey().toString(),entry.getValue().toString());
+        }
+        return myMap;
     }
 
     public int getQuantity(Product p) {

@@ -6,7 +6,6 @@ import static com.example.ecommerce.utils.LayoutUtils.getLinearLayout;
 import static com.example.ecommerce.utils.LayoutUtils.getTextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -33,7 +32,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
-    TextView responseTextView, priceTextView;
+    TextView priceTextView;
     Map<Integer,Store> myStores = new HashMap<>();
     Map<Integer,Product> myProducts = new HashMap<>();
 
@@ -45,13 +44,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ConstraintLayout main_layout = findViewById(R.id.main_layout);
-        responseTextView = (TextView) findViewById(R.id.textView);
         productsLinearLayout = (LinearLayout) findViewById(R.id.productsLinearLayout);
         priceTextView = (TextView) findViewById(R.id.priceText);
 
+        Intent intent = getIntent();
+        order = (Order) intent.getSerializableExtra("orderDetails");
+        if(order == null){
+            order = new Order();
+        }
+
         callEndpoints();
-        order = new Order();
+        priceTextView.setText(df.format(order.getTotalPrice()));
+
     }
 
     private void callEndpoints() {
@@ -86,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             minus.setTag("p"+entry.getValue().getId());
             minus.setOnClickListener(this::removeProductInOrder);
 
-            TextView quantity = getTextView(this,"0",30,Gravity.CENTER);
+            TextView quantity = getTextView(this,""+order.getQuantity(entry.getValue()),30,Gravity.CENTER);
             quantity.setTag("pq"+entry.getValue().getId());
             quantity.setLayoutParams(layoutParams);
 
